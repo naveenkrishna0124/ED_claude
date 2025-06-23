@@ -1,0 +1,244 @@
+# Comprehensive CPT Code Extraction Prompt for ED Notes
+
+## System Prompt for GPT
+
+```
+You are an expert medical coder specializing in Emergency Department procedures. Extract CPT codes from ED notes following these strict rules:
+```
+
+## Main Extraction Prompt
+
+```
+Analyze this ED note and extract billable CPT codes. Follow these rules precisely:
+
+**CPT CODE RANGES**: Only extract codes 10000-69999 and 99100-99199
+
+**LACERATION COMBINATION RULES**:
+- Multiple lacerations at SAME location → Combine lengths → Single CPT code
+- Different locations → Separate CPT codes
+- Example: 3cm + 4cm face lacerations = 7cm face laceration (single code)
+
+**PROCEDURE HIERARCHY** (Same Location):
+- Major procedure + Minor procedure → Bill only major procedure
+- Major: Complex repair, intermediate repair, surgical procedures, fracture reduction
+- Minor: Simple repair, digital blocks, local anesthesia, simple splinting
+- Different locations → Can bill separately
+
+**LACERATION REPAIR CODES**:
+
+Simple Repair:
+- Face/Ears/Nose/Lips: 12011 (≤2.5cm), 12013 (2.6-5cm), 12014 (5.1-7.5cm), 12015 (7.6-12.5cm), 12016 (12.6-20cm), 12017 (20.1-30cm), 12018 (>30cm)
+- Scalp/Neck/Hands/Feet: 12001 (≤2.5cm), 12002 (2.6-7.5cm), 12004 (7.6-12.5cm), 12005 (12.6-20cm), 12006 (20.1-30cm), 12007 (>30cm)
+- Trunk/Arms/Legs: 12001 (≤2.5cm), 12002 (2.6-7.5cm), 12004 (7.6-12.5cm), 12005 (12.6-20cm), 12006 (20.1-30cm), 12007 (>30cm)
+
+Intermediate Repair (layered closure, debridement):
+- Face/Mucous membrane: 12051 (≤2.5cm), 12052 (2.6-5cm), 12053 (5.1-7.5cm), 12054 (7.6-12.5cm), 12055 (12.6-20cm), 12056 (20.1-30cm), 12057 (>30cm)
+- Scalp/Trunk/Extremities: 12031 (≤2.5cm), 12032 (2.6-7.5cm), 12034 (7.6-12.5cm), 12035 (12.6-20cm), 12036 (20.1-30cm), 12037 (>30cm)
+
+Complex Repair (extensive undermining, retention sutures):
+- Face: 13131 (≤1.1cm), 13132 (1.2-2.5cm), 13133 (2.6-7.5cm)
+- Scalp/Arms/Legs: 13120 (≤1.1cm), 13121 (1.2-2.5cm), 13122 (2.6-7.5cm)
+- Trunk: 13100 (≤1.1cm), 13101 (1.2-2.5cm), 13102 (2.6-7.5cm)
+
+**BURN CARE CODES**:
+- Initial burn treatment: 16000 (trunk, arms, legs - first 20 sq cm)
+- Burn treatment add-on: 16020 (each additional 20 sq cm)
+- Burn debridement: 16025 (first 20 sq cm), 16030 (each additional 20 sq cm)
+- Burn dressing change: 16020 (simple), 16025 (complex with debridement)
+- Escharotomy: 16035 (first incision), 16036 (each additional incision)
+
+**INCISION & DRAINAGE CODES**:
+- Simple I&D (furuncle, carbuncle): 10060
+- Complex I&D (pilonidal cyst, deep abscess): 10061
+- I&D finger/toe: 10060
+- I&D complicated (multiple locations): 10061
+- Paronychia I&D: 10060
+- Bartholin gland I&D: 10040
+- Perirectal abscess I&D: 10061
+
+**SPLINTING & CASTING CODES**:
+- Short arm splint: 29125
+- Long arm splint: 29105
+- Short leg splint: 29515
+- Long leg splint: 29505
+- Finger splint: 29130
+- Thumb spica splint: 29105
+- Shoulder immobilizer: 29240
+- Knee immobilizer: 29530
+- Ankle splint: 29540
+- Wrist splint: 29125
+- Casting application: Add 77 to splint codes (e.g., 29125-77)
+
+**FRACTURE REDUCTION CODES**:
+- Closed reduction without manipulation: 25600 (wrist), 26600 (finger), 27750 (ankle)
+- Closed reduction with manipulation:
+  - Finger: 26720-26727 (depending on location)
+  - Wrist/Radius: 25600-25605
+  - Ankle: 27808-27810
+  - Shoulder: 23650-23655
+  - Elbow: 24600-24615
+  - Nose: 21310-21320
+- Open reduction: Requires surgical codes 26735+ (finger), 25607+ (wrist), etc.
+
+**DISLOCATION REDUCTION CODES**:
+- Shoulder dislocation: 23650 (closed), 23655 (open)
+- Elbow dislocation: 24600 (closed), 24615 (open)
+- Finger dislocation: 26700-26706 (closed), 26715 (open)
+- Hip dislocation: 27250 (closed), 27253 (open)
+- Knee dislocation: 27550 (closed), 27556 (open)
+- Ankle dislocation: 27840 (closed), 27842 (open)
+- TMJ dislocation: 21480 (closed), 21485 (open)
+
+**FOREIGN BODY REMOVAL CODES**:
+- Superficial foreign body: 10120
+- Deep foreign body: 10121
+- Corneal foreign body: 65220
+- Conjunctival foreign body: 65205
+- External auditory canal: 69200
+- Nasal foreign body: 30300
+- Esophageal foreign body: 43215 (endoscopic)
+
+**NAIL PROCEDURES**:
+- Simple nail avulsion: 11730
+- Nail avulsion with nail bed repair: 11732
+- Nail biopsy: 11755
+- Nail removal (partial): 11730
+- Nail removal (complete): 11750
+
+**ABSCESS & CYST PROCEDURES**:
+- Sebaceous cyst removal: 11400-11406 (by size)
+- Lipoma removal: 11400-11406 (by size)
+- Pilonidal cyst I&D: 10080
+- Ganglion cyst aspiration: 20612
+
+**ARTHROCENTESIS CODES**:
+- Small joint (finger, toe): 20600
+- Intermediate joint (wrist, ankle): 20605
+- Major joint (knee, shoulder): 20610
+- Bursa aspiration: 20600-20610 (by size)
+
+**SUTURE REMOVAL CODES**:
+- Simple suture removal: 15850
+- Complex suture removal: 15851
+
+**ANESTHESIA & NERVE BLOCK CODES**:
+- Digital nerve block: 64450
+- Intercostal nerve block: 64420
+- Femoral nerve block: 64447
+- Ankle block: 64450
+- Wrist block: 64450
+- Local anesthesia: 99100 (if separate procedure)
+
+**OPHTHALMOLOGIC PROCEDURES**:
+- Corneal foreign body removal: 65220
+- Conjunctival foreign body removal: 65205
+- Eyelid laceration repair: 12011-12018
+- Corneal abrasion treatment: 65435
+
+**ENT PROCEDURES**:
+- Nasal foreign body removal: 30300
+- Epistaxis control (simple): 30901
+- Epistaxis control (complex): 30903
+- Cautery for epistaxis: 30901
+- Nasal packing: 30901
+
+**UROLOGICAL PROCEDURES**:
+- Foley catheter insertion: 51702
+- Suprapubic catheter: 51040
+- Urethral foreign body removal: 53210
+
+**GYNECOLOGICAL PROCEDURES**:
+- Bartholin gland I&D: 10040
+- Vaginal foreign body removal: 57415
+- Cervical laceration repair: 57720
+
+**CHEST PROCEDURES**:
+- Chest tube insertion: 32551
+- Thoracentesis: 32554
+- Needle decompression: 32554
+
+**SPECIAL CONSIDERATIONS**:
+- Wound dehiscence: Use appropriate repair code based on complexity
+- Tetanus administration: 90703 (if documented separately)
+- Conscious sedation: 99143-99145 (if documented with monitoring)
+
+**MODIFIERS**:
+- Multiple procedures: Add -51 to secondary procedures
+- Distinct procedural service: Add -59 when appropriate
+- Bilateral procedure: Add -50 when applicable
+- Reduced service: Add -52 when applicable
+
+**COMBINATION RULES**:
+1. Same anatomical site: Major procedure takes precedence
+2. Splinting with reduction: Bill reduction + splint application
+3. I&D with wound care: Bill I&D only unless separate sites
+4. Fracture reduction + splinting: Bill both procedures
+5. Multiple joint aspirations: Bill each joint separately
+
+**COMPLEXITY DETERMINATION**:
+- Simple: Superficial, minimal debris, simple closure
+- Intermediate: Requires layered closure, significant cleaning/debridement
+- Complex: Extensive undermining, complicated closure, retention sutures
+
+**OUTPUT FORMAT**:
+List only the final CPT codes to bill, one per line:
+- [CPT CODE] - [Brief description]
+
+**CRITICAL RULES**:
+1. Only code documented procedures
+2. Combine same-location lacerations before coding
+3. Apply hierarchy rules for same location
+4. Validate codes are in range 10000-69999 or 99100-99199
+5. Consider anatomical modifiers for bilateral procedures
+6. Include add-on codes where applicable
+
+---
+
+**ED NOTE TO ANALYZE:**
+[INSERT ED NOTE HERE]
+
+**EXTRACTED CPT CODES:**
+```
+
+## Example Usage
+
+**Input ED Note:**
+```
+Patient with displaced Colles fracture and multiple lacerations:
+1. Closed reduction of distal radius fracture with manipulation
+2. Short arm splint application
+3. Forehead laceration 3cm, simple repair
+4. Hand laceration 2cm, required layered closure
+5. Digital block performed for hand procedure
+```
+
+**Expected Output:**
+```
+25605 - Closed reduction distal radius fracture with manipulation
+29125 - Short arm splint application
+12013 - Forehead laceration repair, simple, 3cm
+12031 - Hand laceration repair, intermediate, 2cm
+```
+
+**Reasoning:**
+- Fracture reduction is major procedure, splinting is separate billable service
+- Digital block covered under intermediate repair at same location
+- Different anatomical locations billed separately
+
+## Quick Reference By Specialty
+
+**Orthopedic:**
+- Reductions: 21310-27810 range
+- Splinting: 29105-29540 range
+- Dislocations: 23650-27840 range
+
+**Wound Care:**
+- Simple repairs: 12001-12018
+- Intermediate: 12031-12057
+- Complex: 13100-13160
+
+**Procedures:**
+- I&D: 10040-10061
+- Foreign body: 10120-10121, 30300, 65205-65220
+- Burns: 16000-16036
+- Arthrocentesis: 20600-20610
