@@ -1,0 +1,341 @@
+# Comprehensive CPT Code Extraction Prompt with JSON Output
+
+## System Prompt for GPT
+
+```
+You are an expert medical coder specializing in Emergency Department procedures. Extract CPT codes from ED notes and provide detailed justification in JSON format.
+```
+
+## Main Extraction Prompt
+
+```
+Analyze this ED note and extract billable CPT codes. Follow these rules precisely:
+
+**CPT CODE RANGES**: Only extract codes 10000-69999 and 99100-99199
+
+**LACERATION COMBINATION RULES**:
+- Multiple lacerations at SAME location → Combine lengths → Single CPT code
+- Different locations → Separate CPT codes
+- Example: 3cm + 4cm face lacerations = 7cm face laceration (single code)
+
+**PROCEDURE HIERARCHY** (Same Location):
+- Major procedure + Minor procedure → Bill only major procedure
+- Major: Complex repair, intermediate repair, surgical procedures, fracture reduction
+- Minor: Simple repair, digital blocks, local anesthesia, simple splinting
+- Different locations → Can bill separately
+
+**LACERATION REPAIR CODES**:
+
+Simple Repair:
+- Face/Ears/Nose/Lips: 12011 (≤2.5cm), 12013 (2.6-5cm), 12014 (5.1-7.5cm), 12015 (7.6-12.5cm), 12016 (12.6-20cm), 12017 (20.1-30cm), 12018 (>30cm)
+- Scalp/Neck/Hands/Feet: 12001 (≤2.5cm), 12002 (2.6-7.5cm), 12004 (7.6-12.5cm), 12005 (12.6-20cm), 12006 (20.1-30cm), 12007 (>30cm)
+- Trunk/Arms/Legs: 12001 (≤2.5cm), 12002 (2.6-7.5cm), 12004 (7.6-12.5cm), 12005 (12.6-20cm), 12006 (20.1-30cm), 12007 (>30cm)
+
+Intermediate Repair (layered closure, debridement):
+- Face/Mucous membrane: 12051 (≤2.5cm), 12052 (2.6-5cm), 12053 (5.1-7.5cm), 12054 (7.6-12.5cm), 12055 (12.6-20cm), 12056 (20.1-30cm), 12057 (>30cm)
+- Scalp/Trunk/Extremities: 12031 (≤2.5cm), 12032 (2.6-7.5cm), 12034 (7.6-12.5cm), 12035 (12.6-20cm), 12036 (20.1-30cm), 12037 (>30cm)
+
+Complex Repair (extensive undermining, retention sutures):
+- Face: 13131 (≤1.1cm), 13132 (1.2-2.5cm), 13133 (2.6-7.5cm)
+- Scalp/Arms/Legs: 13120 (≤1.1cm), 13121 (1.2-2.5cm), 13122 (2.6-7.5cm)
+- Trunk: 13100 (≤1.1cm), 13101 (1.2-2.5cm), 13102 (2.6-7.5cm)
+
+**BURN CARE CODES**:
+- Initial burn treatment: 16000 (trunk, arms, legs - first 20 sq cm)
+- Burn treatment add-on: 16020 (each additional 20 sq cm)
+- Burn debridement: 16025 (first 20 sq cm), 16030 (each additional 20 sq cm)
+- Burn dressing change: 16020 (simple), 16025 (complex with debridement)
+- Escharotomy: 16035 (first incision), 16036 (each additional incision)
+
+**INCISION & DRAINAGE CODES**:
+- Simple I&D (furuncle, carbuncle): 10060
+- Complex I&D (pilonidal cyst, deep abscess): 10061
+- I&D finger/toe: 10060
+- I&D complicated (multiple locations): 10061
+- Paronychia I&D: 10060
+- Bartholin gland I&D: 10040
+- Perirectal abscess I&D: 10061
+
+**SPLINTING & CASTING CODES**:
+- Short arm splint: 29125
+- Long arm splint: 29105
+- Short leg splint: 29515
+- Long leg splint: 29505
+- Finger splint: 29130
+- Thumb spica splint: 29105
+- Shoulder immobilizer: 29240
+- Knee immobilizer: 29530
+- Ankle splint: 29540
+- Wrist splint: 29125
+- Casting application: Add 77 to splint codes (e.g., 29125-77)
+
+**FRACTURE REDUCTION CODES**:
+- Closed reduction without manipulation: 25600 (wrist), 26600 (finger), 27750 (ankle)
+- Closed reduction with manipulation:
+  - Finger: 26720-26727 (depending on location)
+  - Wrist/Radius: 25600-25605
+  - Ankle: 27808-27810
+  - Shoulder: 23650-23655
+  - Elbow: 24600-24615
+  - Nose: 21310-21320
+- Open reduction: Requires surgical codes 26735+ (finger), 25607+ (wrist), etc.
+
+**DISLOCATION REDUCTION CODES**:
+- Shoulder dislocation: 23650 (closed), 23655 (open)
+- Elbow dislocation: 24600 (closed), 24615 (open)
+- Finger dislocation: 26700-26706 (closed), 26715 (open)
+- Hip dislocation: 27250 (closed), 27253 (open)
+- Knee dislocation: 27550 (closed), 27556 (open)
+- Ankle dislocation: 27840 (closed), 27842 (open)
+- TMJ dislocation: 21480 (closed), 21485 (open)
+
+**FOREIGN BODY REMOVAL CODES**:
+- Superficial foreign body: 10120
+- Deep foreign body: 10121
+- Corneal foreign body: 65220
+- Conjunctival foreign body: 65205
+- External auditory canal: 69200
+- Nasal foreign body: 30300
+- Esophageal foreign body: 43215 (endoscopic)
+
+**NAIL PROCEDURES**:
+- Simple nail avulsion: 11730
+- Nail avulsion with nail bed repair: 11732
+- Nail biopsy: 11755
+- Nail removal (partial): 11730
+- Nail removal (complete): 11750
+
+**ABSCESS & CYST PROCEDURES**:
+- Sebaceous cyst removal: 11400-11406 (by size)
+- Lipoma removal: 11400-11406 (by size)
+- Pilonidal cyst I&D: 10080
+- Ganglion cyst aspiration: 20612
+
+**ARTHROCENTESIS CODES**:
+- Small joint (finger, toe): 20600
+- Intermediate joint (wrist, ankle): 20605
+- Major joint (knee, shoulder): 20610
+- Bursa aspiration: 20600-20610 (by size)
+
+**SUTURE REMOVAL CODES**:
+- Simple suture removal: 15850
+- Complex suture removal: 15851
+
+**ANESTHESIA & NERVE BLOCK CODES**:
+- Digital nerve block: 64450
+- Intercostal nerve block: 64420
+- Femoral nerve block: 64447
+- Ankle block: 64450
+- Wrist block: 64450
+- Local anesthesia: 99100 (if separate procedure)
+
+**OPHTHALMOLOGIC PROCEDURES**:
+- Corneal foreign body removal: 65220
+- Conjunctival foreign body removal: 65205
+- Eyelid laceration repair: 12011-12018
+- Corneal abrasion treatment: 65435
+
+**ENT PROCEDURES**:
+- Nasal foreign body removal: 30300
+- Epistaxis control (simple): 30901
+- Epistaxis control (complex): 30903
+- Cautery for epistaxis: 30901
+- Nasal packing: 30901
+
+**UROLOGICAL PROCEDURES**:
+- Foley catheter insertion: 51702
+- Suprapubic catheter: 51040
+- Urethral foreign body removal: 53210
+
+**GYNECOLOGICAL PROCEDURES**:
+- Bartholin gland I&D: 10040
+- Vaginal foreign body removal: 57415
+- Cervical laceration repair: 57720
+
+**CHEST PROCEDURES**:
+- Chest tube insertion: 32551
+- Thoracentesis: 32554
+- Needle decompression: 32554
+
+**SPECIAL CONSIDERATIONS**:
+- Wound dehiscence: Use appropriate repair code based on complexity
+- Tetanus administration: 90703 (if documented separately)
+- Conscious sedation: 99143-99145 (if documented with monitoring)
+
+**MODIFIERS**:
+- Multiple procedures: Add -51 to secondary procedures
+- Distinct procedural service: Add -59 when appropriate
+- Bilateral procedure: Add -50 when applicable
+- Reduced service: Add -52 when applicable
+
+**COMBINATION RULES**:
+1. Same anatomical site: Major procedure takes precedence
+2. Splinting with reduction: Bill reduction + splint application
+3. I&D with wound care: Bill I&D only unless separate sites
+4. Fracture reduction + splinting: Bill both procedures
+5. Multiple joint aspirations: Bill each joint separately
+
+**COMPLEXITY DETERMINATION**:
+- Simple: Superficial, minimal debris, simple closure
+- Intermediate: Requires layered closure, significant cleaning/debridement
+- Complex: Extensive undermining, complicated closure, retention sutures
+
+**REQUIRED JSON OUTPUT FORMAT**:
+```json
+{
+  "cpt_codes_extracted": [
+    {
+      "cpt_code": "12013",
+      "procedure_name": "Simple repair of face laceration",
+      "procedure_description": "Simple repair of superficial wounds of face, ears, eyelids, nose, lips and/or mucous membranes; 2.6 cm to 5.0 cm",
+      "reference_line": "Left cheek laceration 3 cm repaired with simple interrupted sutures",
+      "anatomical_location": "Face - left cheek",
+      "size_measurement": "3.0 cm",
+      "complexity": "Simple",
+      "justification": "Single 3cm face laceration requires simple repair code 12013 for face lacerations 2.6-5.0cm",
+      "modifier": null
+    }
+  ],
+  "combination_rules_applied": [
+    {
+      "rule_type": "Laceration combination",
+      "description": "Multiple face lacerations combined",
+      "original_procedures": ["3cm cheek laceration", "2cm forehead laceration"],
+      "combined_result": "5cm total face laceration",
+      "reference_lines": ["Left cheek laceration 3 cm", "Forehead laceration 2 cm"]
+    }
+  ],
+  "excluded_procedures": [
+    {
+      "procedure": "Digital nerve block",
+      "reference_line": "Digital block performed with 1% lidocaine",
+      "exclusion_reason": "Covered under intermediate repair at same anatomical location per hierarchy rules",
+      "excluded_from_cpt": "64450"
+    }
+  ],
+  "billing_summary": {
+    "total_cpt_codes": ["12013", "12031"],
+    "total_procedures": 2,
+    "primary_procedure": "12013",
+    "modifiers_applied": ["-51"]
+  },
+  "validation_notes": [
+    "All CPT codes verified within valid ranges 10000-69999 and 99100-99199",
+    "Combination rules applied for same-location procedures",
+    "Hierarchy rules enforced for major vs minor procedures"
+  ]
+}
+```
+
+**CRITICAL INSTRUCTIONS**:
+1. Extract the EXACT text from the ED note for "reference_line" - quote directly
+2. Provide detailed justification for each CPT code selection
+3. Show all combination rules that were applied
+4. List any procedures that were excluded and why
+5. Include size measurements, anatomical locations, and complexity levels
+6. Validate all codes are in the specified ranges
+7. Apply appropriate modifiers (-51, -59, -50, etc.)
+
+---
+
+**ED NOTE TO ANALYZE:**
+[INSERT ED NOTE HERE]
+
+**JSON OUTPUT:**
+```
+
+## Example Usage
+
+**Input ED Note:**
+```
+PROCEDURES PERFORMED:
+1. Left cheek laceration 3 cm repaired with simple interrupted sutures using 5-0 nylon
+2. Forehead laceration 2 cm repaired with simple interrupted sutures using 5-0 nylon  
+3. Right hand dorsal laceration 2 cm requiring layered closure with 4-0 vicryl and 5-0 nylon
+4. Digital nerve block performed with 1% lidocaine for hand procedure
+5. Closed reduction of displaced 5th metacarpal fracture with manipulation
+6. Short arm splint applied for fracture immobilization
+```
+
+**Expected JSON Output:**
+```json
+{
+  "cpt_codes_extracted": [
+    {
+      "cpt_code": "12014",
+      "procedure_name": "Simple repair of face laceration",
+      "procedure_description": "Simple repair of superficial wounds of face, ears, eyelids, nose, lips and/or mucous membranes; 5.1 cm to 7.5 cm",
+      "reference_line": "Left cheek laceration 3 cm repaired with simple interrupted sutures using 5-0 nylon, Forehead laceration 2 cm repaired with simple interrupted sutures using 5-0 nylon",
+      "anatomical_location": "Face - cheek and forehead",
+      "size_measurement": "5.0 cm combined",
+      "complexity": "Simple",
+      "justification": "Two face lacerations (3cm + 2cm = 5cm total) combined per same-location rule, requiring code 12014 for face repairs 5.1-7.5cm",
+      "modifier": null
+    },
+    {
+      "cpt_code": "12031",
+      "procedure_name": "Intermediate repair of hand laceration",
+      "procedure_description": "Layer closure of wounds of scalp, axillae, trunk and/or extremities; 2.5 cm or less",
+      "reference_line": "Right hand dorsal laceration 2 cm requiring layered closure with 4-0 vicryl and 5-0 nylon",
+      "anatomical_location": "Hand - right dorsal",
+      "size_measurement": "2.0 cm",
+      "complexity": "Intermediate",
+      "justification": "Hand laceration requiring layered closure qualifies as intermediate repair, 2cm size fits 12031 code",
+      "modifier": "-51"
+    },
+    {
+      "cpt_code": "26720",
+      "procedure_name": "Closed reduction of metacarpal fracture",
+      "procedure_description": "Closed treatment of metacarpal fracture, single; with manipulation, each bone",
+      "reference_line": "Closed reduction of displaced 5th metacarpal fracture with manipulation",
+      "anatomical_location": "Hand - 5th metacarpal",
+      "size_measurement": null,
+      "complexity": "Major procedure",
+      "justification": "Displaced metacarpal fracture requiring closed reduction with manipulation",
+      "modifier": "-51"
+    },
+    {
+      "cpt_code": "29125",
+      "procedure_name": "Short arm splint application",
+      "procedure_description": "Application of short arm splint (forearm to hand); static",
+      "reference_line": "Short arm splint applied for fracture immobilization",
+      "anatomical_location": "Forearm to hand",
+      "size_measurement": null,
+      "complexity": "Supportive procedure",
+      "justification": "Splint application following fracture reduction is separately billable",
+      "modifier": "-51"
+    }
+  ],
+  "combination_rules_applied": [
+    {
+      "rule_type": "Laceration combination - same location",
+      "description": "Multiple face lacerations combined into single code",
+      "original_procedures": ["Left cheek laceration 3 cm", "Forehead laceration 2 cm"],
+      "combined_result": "5 cm total face laceration repair",
+      "reference_lines": ["Left cheek laceration 3 cm repaired", "Forehead laceration 2 cm repaired"]
+    }
+  ],
+  "excluded_procedures": [
+    {
+      "procedure": "Digital nerve block",
+      "reference_line": "Digital nerve block performed with 1% lidocaine for hand procedure",
+      "exclusion_reason": "Bundled with intermediate repair procedure at same anatomical location per hierarchy rules",
+      "excluded_from_cpt": "64450"
+    }
+  ],
+  "billing_summary": {
+    "total_cpt_codes": ["12014", "12031", "26720", "29125"],
+    "total_procedures": 4,
+    "primary_procedure": "26720",
+    "modifiers_applied": ["-51"]
+  },
+  "validation_notes": [
+    "All CPT codes verified within valid ranges",
+    "Face laceration combination rule applied correctly",
+    "Digital block excluded per hierarchy rules",
+    "Fracture reduction and splinting both billable as different service types"
+  ]
+}
+```
+
+This format provides complete transparency in the coding process with exact references to the ED note text and detailed justification for each decision.
